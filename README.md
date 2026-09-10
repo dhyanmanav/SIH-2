@@ -76,3 +76,8 @@ npm run build
 
 This creates a `dist/` folder — upload that. Remember to set the same two environment
 variables (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) in your host's dashboard.
+
+The production build is also an installable PWA. It caches the application shell and
+static assets for faster repeat loads, while Supabase authentication and database
+requests always use the network. When the service-worker cache version changes,
+previous application caches are removed automatically.
