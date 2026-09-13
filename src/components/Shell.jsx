@@ -7,6 +7,7 @@ const NAV = {
     { to: '/trainee', label: 'Overview', icon: '◎' },
     { to: '/trainee/courses', label: 'Course catalog', icon: '▤' },
     { to: '/trainee/certificates', label: 'Certificates', icon: '✓' },
+    { to: '/trainee/mentor', label: 'IMD AI mentor', icon: '✦' },
     { to: '/trainee/profile', label: 'My profile', icon: '☺' },
   ],
   trainer: [

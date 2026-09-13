@@ -13,6 +13,7 @@ import TraineeDashboard from './pages/trainee/TraineeDashboard'
 import CourseCatalog from './pages/trainee/CourseCatalog'
 import CourseDetail from './pages/trainee/CourseDetail'
 import MyCertificates from './pages/trainee/MyCertificates'
+import ImdMentor from './pages/trainee/ImdMentor'
 
 import TrainerDashboard from './pages/trainer/TrainerDashboard'
 import TrainerCourses from './pages/trainer/TrainerCourses'
@@ -46,6 +47,7 @@ export default function App() {
       <Route path="/trainee/courses" element={<ProtectedRoute role="trainee"><CourseCatalog /></ProtectedRoute>} />
       <Route path="/trainee/courses/:id" element={<ProtectedRoute role="trainee"><CourseDetail /></ProtectedRoute>} />
       <Route path="/trainee/certificates" element={<ProtectedRoute role="trainee"><MyCertificates /></ProtectedRoute>} />
+      <Route path="/trainee/mentor" element={<ProtectedRoute role="trainee"><ImdMentor /></ProtectedRoute>} />
       <Route path="/trainee/profile" element={<ProtectedRoute role="trainee"><Profile /></ProtectedRoute>} />
 
       <Route path="/trainer" element={<ProtectedRoute role="trainer"><TrainerDashboard /></ProtectedRoute>} />

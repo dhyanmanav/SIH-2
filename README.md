@@ -66,6 +66,21 @@ Open the URL it prints (usually http://localhost:5173).
 - **Certificates**: each one gets a unique SHA-256 seal generated at issue time, so it
   can't be silently altered after the fact. Trainees can download a certificate PDF,
   and anyone can verify a certificate publicly using its hash or QR code at `/verify`.
+- **IMD AI mentor**: approved trainees can ask an IMD-focused AI mentor about
+  meteorology, forecasting, observations, climate science, data analysis, and their
+  enrolled courses. It runs through a Supabase Edge Function so the Groq API key is
+  never exposed in the browser.
+
+### Deploying the IMD AI mentor
+
+Install the Supabase CLI, link this project, then configure the Groq secret and deploy:
+
+```bash
+supabase secrets set GROQ_API_KEY=YOUR_NEW_GROQ_KEY
+supabase functions deploy imd-chat
+```
+
+Rotate any Groq key that was pasted into chat, source code, or a frontend `.env` file.
 
 ## Deploying
 
