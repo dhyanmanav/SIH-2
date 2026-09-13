@@ -114,6 +114,8 @@ create table if not exists certificates (
   unique (trainee_id, course_id)
 );
 
+create unique index if not exists certificates_cert_hash_key on certificates (cert_hash);
+
 -- ---------- feedback ----------
 create table if not exists feedback (
   id uuid primary key default gen_random_uuid(),
@@ -289,6 +291,36 @@ create policy "certs: read own or trainer/admin" on certificates for select
     select 1 from courses c where c.id = course_id and c.trainer_id = auth.uid()));
 create policy "certs: system insert" on certificates for insert
   with check (trainee_id = auth.uid() or is_admin());
+
+-- Public verification exposes only the fields needed to validate a certificate.
+create or replace function public.verify_certificate(lookup_hash text)
+returns table (
+  cert_hash text,
+  issued_at timestamptz,
+  trainee_name text,
+  course_title text,
+  category text
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    c.cert_hash,
+    c.issued_at,
+    p.full_name,
+    co.title,
+    co.category
+  from certificates c
+  join profiles p on p.id = c.trainee_id
+  join courses co on co.id = c.course_id
+  where lower(c.cert_hash) = lower(trim(lookup_hash))
+  limit 1;
+$$;
+
+revoke all on function public.verify_certificate(text) from public;
+grant execute on function public.verify_certificate(text) to anon, authenticated;
 
 -- ---------- feedback ----------
 create policy "feedback: read if approved" on feedback for select using (is_approved());

@@ -64,7 +64,8 @@ Open the URL it prints (usually http://localhost:5173).
   enrollments/certificates, trainers only manage their own courses, and only approved
   admins can approve people or post announcements.
 - **Certificates**: each one gets a unique SHA-256 seal generated at issue time, so it
-  can't be silently altered after the fact.
+  can't be silently altered after the fact. Trainees can download a certificate PDF,
+  and anyone can verify a certificate publicly using its hash or QR code at `/verify`.
 
 ## Deploying
 

@@ -40,6 +40,9 @@ export default function Login() {
       <p className="mt-6 text-center text-sm text-storm-500">
         New here? <Link to="/signup" className="font-semibold text-teal-600 hover:underline">Create an account</Link>
       </p>
+      <p className="mt-3 text-center text-sm text-storm-500">
+        Need to check a certificate? <Link to="/verify" className="font-semibold text-teal-600 hover:underline">Verify it publicly</Link>
+      </p>
     </AuthLayout>
   )
 }

@@ -84,6 +84,18 @@ export default function Shell({ children, title, subtitle }) {
                 {l.label}
               </NavLink>
             ))}
+            <NavLink
+              to="/verify"
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                `focus-ring flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isActive ? 'bg-teal-600 text-white' : 'text-storm-300 hover:bg-navy-800 hover:text-white'
+                }`
+              }
+            >
+              <span className="w-4 text-center">⌕</span>
+              Verify certificate
+            </NavLink>
           </nav>
 
           <div className="absolute bottom-5 left-5 right-5 rounded-card bg-navy-900 p-3.5">

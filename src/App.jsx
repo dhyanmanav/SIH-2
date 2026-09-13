@@ -7,6 +7,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import PendingApproval from './pages/PendingApproval'
 import Profile from './pages/Profile'
+import VerifyCertificate from './pages/VerifyCertificate'
 
 import TraineeDashboard from './pages/trainee/TraineeDashboard'
 import CourseCatalog from './pages/trainee/CourseCatalog'
@@ -36,6 +37,8 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/pending-approval" element={<PendingApproval />} />
+      <Route path="/verify" element={<VerifyCertificate />} />
+      <Route path="/verify/:hash" element={<VerifyCertificate />} />
 
       <Route path="/" element={<RoleHome />} />
 
