@@ -61,7 +61,12 @@ export default function Profile() {
               <Input label="Full name" value={form.full_name} onChange={set('full_name')} />
               <Input label="Designation" value={form.designation} onChange={set('designation')} placeholder="Scientist-C" />
               <Input label="Region / office" value={form.region} onChange={set('region')} placeholder="Bengaluru RMC" />
-              <Input label="Skills (comma separated)" value={form.skillsInput} onChange={set('skillsInput')} placeholder="Radar, GIS, Forecasting" />
+              <Input
+                label={profile.role === 'trainee' ? 'Competency goals (comma separated)' : 'Expertise (comma separated)'}
+                value={form.skillsInput}
+                onChange={set('skillsInput')}
+                placeholder={profile.role === 'trainee' ? 'Radar, GIS, Forecasting' : 'Radar, GIS, Forecasting'}
+              />
             </div>
             <Input label="Qualifications" value={form.qualifications} onChange={set('qualifications')} placeholder="M.Sc. Meteorology" />
             <Textarea label="Bio" rows={4} value={form.bio} onChange={set('bio')} placeholder="A short note about your background and interests." />

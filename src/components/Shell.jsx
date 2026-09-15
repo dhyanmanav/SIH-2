@@ -9,6 +9,7 @@ const NAV = {
     { to: '/trainee/courses', key: 'courseCatalog', icon: '▤' },
     { to: '/trainee/certificates', key: 'certificates', icon: '✓' },
     { to: '/trainee/mentor', key: 'mentor', icon: '✦' },
+    { to: '/trainee/competencies', key: 'competencyMap', icon: '◈' },
     { to: '/trainee/profile', key: 'profile', icon: '☺' },
   ],
   trainer: [
