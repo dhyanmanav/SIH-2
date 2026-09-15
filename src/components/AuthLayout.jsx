@@ -1,4 +1,8 @@
+import { LocalizedContent, useLanguage } from '../context/LanguageContext'
+
 export default function AuthLayout({ children }) {
+  const { language, setLanguage, languages, t } = useLanguage()
+
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="relative hidden flex-col justify-between overflow-hidden bg-navy-950 p-12 text-white lg:flex">
@@ -40,8 +44,19 @@ export default function AuthLayout({ children }) {
         </div>
       </div>
 
-      <div className="flex items-center justify-center bg-cloud-50 px-6 py-12">
-        <div className="w-full max-w-sm">{children}</div>
+      <div className="relative flex items-center justify-center bg-cloud-50 px-6 py-12">
+        <label className="absolute right-6 top-6 flex items-center gap-2 text-xs text-storm-500">
+          <span>{t.language}</span>
+          <select
+            value={language}
+            onChange={(event) => setLanguage(event.target.value)}
+            className="rounded border border-cloud-200 bg-white px-2 py-1 text-xs text-navy-900"
+            aria-label={t.language}
+          >
+            {languages.map((item) => <option key={item.code} value={item.code}>{item.nativeLabel}</option>)}
+          </select>
+        </label>
+        <div className="w-full max-w-sm"><LocalizedContent>{children}</LocalizedContent></div>
       </div>
     </div>
   )

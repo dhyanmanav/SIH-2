@@ -1,32 +1,32 @@
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { LocalizedContent, useLanguage } from '../context/LanguageContext'
 
 const NAV = {
   trainee: [
-    { to: '/trainee', label: 'Overview', icon: '◎' },
-    { to: '/trainee/courses', label: 'Course catalog', icon: '▤' },
-    { to: '/trainee/certificates', label: 'Certificates', icon: '✓' },
-    { to: '/trainee/mentor', label: 'IMD AI mentor', icon: '✦' },
-    { to: '/trainee/profile', label: 'My profile', icon: '☺' },
+    { to: '/trainee', key: 'overview', icon: '◎' },
+    { to: '/trainee/courses', key: 'courseCatalog', icon: '▤' },
+    { to: '/trainee/certificates', key: 'certificates', icon: '✓' },
+    { to: '/trainee/mentor', key: 'mentor', icon: '✦' },
+    { to: '/trainee/profile', key: 'profile', icon: '☺' },
   ],
   trainer: [
-    { to: '/trainer', label: 'Overview', icon: '◎' },
-    { to: '/trainer/courses', label: 'My courses', icon: '▤' },
-    { to: '/trainer/profile', label: 'My profile', icon: '☺' },
+    { to: '/trainer', key: 'overview', icon: '◎' },
+    { to: '/trainer/courses', key: 'courseCatalog', icon: '▤' },
+    { to: '/trainer/profile', key: 'profile', icon: '☺' },
   ],
   admin: [
-    { to: '/admin', label: 'Overview', icon: '◎' },
-    { to: '/admin/users', label: 'People', icon: '☺' },
-    { to: '/admin/courses', label: 'Courses', icon: '▤' },
-    { to: '/admin/announcements', label: 'Announcements', icon: '✎' },
+    { to: '/admin', key: 'overview', icon: '◎' },
+    { to: '/admin/users', key: 'people', icon: '☺' },
+    { to: '/admin/courses', key: 'courseCatalog', icon: '▤' },
+    { to: '/admin/announcements', key: 'announcements', icon: '✎' },
   ],
 }
 
-const ROLE_LABEL = { trainee: 'Trainee', trainer: 'Trainer', admin: 'Admin' }
-
 export default function Shell({ children, title, subtitle }) {
   const { profile, signOut } = useAuth()
+  const { language, setLanguage, languages, t, translate } = useLanguage()
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const links = NAV[profile?.role] ?? []
@@ -82,7 +82,7 @@ export default function Shell({ children, title, subtitle }) {
                 }
               >
                 <span className="w-4 text-center">{l.icon}</span>
-                {l.label}
+                {t[l.key] ?? l.key}
               </NavLink>
             ))}
             <NavLink
@@ -95,18 +95,29 @@ export default function Shell({ children, title, subtitle }) {
               }
             >
               <span className="w-4 text-center">⌕</span>
-              Verify certificate
+              {t.verify}
             </NavLink>
           </nav>
 
           <div className="absolute bottom-5 left-5 right-5 rounded-card bg-navy-900 p-3.5">
             <p className="truncate text-sm font-semibold text-white">{profile?.full_name}</p>
-            <p className="text-xs text-storm-300">{ROLE_LABEL[profile?.role] ?? '—'}</p>
+            <p className="text-xs text-storm-300">{t[profile?.role] ?? '—'}</p>
+            <label className="mt-3 flex items-center justify-between gap-2 text-xs text-storm-300">
+              <span>{t.language}</span>
+              <select
+                value={language}
+                onChange={(event) => setLanguage(event.target.value)}
+                className="max-w-[130px] rounded border border-navy-700 bg-navy-800 px-2 py-1 text-xs text-white"
+                aria-label={t.language}
+              >
+                {languages.map((item) => <option key={item.code} value={item.code}>{item.nativeLabel}</option>)}
+              </select>
+            </label>
             <button
               onClick={handleSignOut}
               className="focus-ring mt-3 w-full rounded-md border border-navy-700 py-1.5 text-xs font-medium text-cloud-100 hover:bg-navy-800"
             >
-              Sign out
+              {t.signOut}
             </button>
           </div>
         </aside>
@@ -119,11 +130,11 @@ export default function Shell({ children, title, subtitle }) {
         <main className="min-h-screen flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
           {(title || subtitle) && (
             <div className="mb-7">
-              {title && <h1 className="text-2xl font-bold sm:text-[26px]">{title}</h1>}
-              {subtitle && <p className="mt-1 text-sm text-storm-500">{subtitle}</p>}
+              {title && <h1 className="text-2xl font-bold sm:text-[26px]">{translate(title)}</h1>}
+              {subtitle && <p className="mt-1 text-sm text-storm-500">{translate(subtitle)}</p>}
             </div>
           )}
-          {children}
+          <LocalizedContent>{children}</LocalizedContent>
         </main>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import AuthLayout from '../components/AuthLayout'
 import { Button, Input, Select } from '../components/ui'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function Signup() {
   const [form, setForm] = useState({ fullName: '', email: '', password: '', role: 'trainee', designation: '', region: '' })
@@ -10,6 +11,7 @@ export default function Signup() {
   const [done, setDone] = useState(false)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { translate } = useLanguage()
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
@@ -52,9 +54,9 @@ export default function Signup() {
   if (done) {
     return (
       <AuthLayout>
-        <h1 className="text-2xl font-bold text-navy-900">Account created</h1>
+        <h1 className="text-2xl font-bold text-navy-900">{translate('Account created')}</h1>
         <p className="mt-2 text-sm text-storm-500">
-          An admin needs to approve your account before you can sign in. You'll be redirected to
+          {translate('An admin needs to approve your account before you can sign in. You will be redirected to')}
           the login page shortly.
         </p>
       </AuthLayout>
@@ -63,8 +65,8 @@ export default function Signup() {
 
   return (
     <AuthLayout>
-      <h1 className="text-2xl font-bold text-navy-900">Create your account</h1>
-      <p className="mt-1 text-sm text-storm-500">Get approved, then start training.</p>
+      <h1 className="text-2xl font-bold text-navy-900">{translate('Create your account')}</h1>
+      <p className="mt-1 text-sm text-storm-500">{translate('Get approved, then start training.')}</p>
 
       <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-4">
         <Input label="Full name" required value={form.fullName} onChange={set('fullName')} placeholder="A. Sharma" />
@@ -83,12 +85,12 @@ export default function Signup() {
         {error && <p className="rounded-md bg-coral-100 px-3 py-2 text-sm text-coral-600">{error}</p>}
 
         <Button type="submit" variant="accent" disabled={loading} className="mt-2 w-full">
-          {loading ? 'Creating account…' : 'Create account'}
+          {loading ? translate('Creating account…') : translate('Create account')}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-storm-500">
-        Already have an account? <Link to="/login" className="font-semibold text-teal-600 hover:underline">Sign in</Link>
+        {translate('Already have an account?')} <Link to="/login" className="font-semibold text-teal-600 hover:underline">{translate('Sign in')}</Link>
       </p>
     </AuthLayout>
   )

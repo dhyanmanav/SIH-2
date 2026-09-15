@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { Badge, Button, Card, Input } from '../components/ui'
+import { LocalizedContent, useLanguage } from '../context/LanguageContext'
 
 export default function VerifyCertificate() {
   const { hash: routeHash } = useParams()
@@ -10,6 +11,7 @@ export default function VerifyCertificate() {
   const [certificate, setCertificate] = useState(null)
   const [loading, setLoading] = useState(Boolean(routeHash))
   const [error, setError] = useState('')
+  const { translate, language, setLanguage, languages, t } = useLanguage()
 
   useEffect(() => {
     if (!routeHash) return
@@ -50,12 +52,18 @@ export default function VerifyCertificate() {
       <main className="mx-auto max-w-2xl">
         <div className="mb-8 flex items-center justify-between">
           <Link to="/" className="font-display text-lg font-bold text-navy-900">CAPACITY CONNECT</Link>
-          <Link to="/login" className="text-sm font-semibold text-teal-600 hover:underline">Sign in</Link>
+          <div className="flex items-center gap-3">
+            <select value={language} onChange={(event) => setLanguage(event.target.value)} className="rounded border border-cloud-200 bg-white px-2 py-1 text-xs">
+              {languages.map((item) => <option key={item.code} value={item.code}>{item.nativeLabel}</option>)}
+            </select>
+            <Link to="/login" className="text-sm font-semibold text-teal-600 hover:underline">{translate('Sign in')}</Link>
+          </div>
         </div>
 
+        <LocalizedContent>
         <Card>
-          <p className="text-sm font-semibold uppercase tracking-wide text-teal-600">Public verification</p>
-          <h1 className="mt-2 text-3xl font-bold">Verify a certificate</h1>
+          <p className="text-sm font-semibold uppercase tracking-wide text-teal-600">{translate('Public verification')}</p>
+          <h1 className="mt-2 text-3xl font-bold">{translate('Verify a certificate')}</h1>
           <p className="mt-2 text-sm text-storm-500">
             Enter the certificate hash shown on the certificate, or scan its QR code.
           </p>
@@ -70,7 +78,7 @@ export default function VerifyCertificate() {
               />
             </div>
             <Button type="submit" variant="accent" disabled={loading}>
-              {loading ? 'Checking…' : 'Verify certificate'}
+              {loading ? translate('Checking…') : t.verify}
             </Button>
           </form>
 
@@ -79,7 +87,7 @@ export default function VerifyCertificate() {
           {certificate && (
             <div className="mt-6 rounded-card border border-teal-200 bg-teal-50 p-5">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="text-xl font-bold">Certificate is valid</h2>
+                <h2 className="text-xl font-bold">{translate('Certificate is valid')}</h2>
                 <Badge tone="teal">Authentic</Badge>
               </div>
               <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
@@ -103,6 +111,7 @@ export default function VerifyCertificate() {
             </div>
           )}
         </Card>
+        </LocalizedContent>
       </main>
     </div>
   )

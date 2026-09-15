@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../context/AuthContext'
 import Shell from '../components/Shell'
 import { Card, Input, Textarea, Button, Badge } from '../components/ui'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function Profile() {
   const { profile, refreshProfile } = useAuth()
@@ -16,6 +17,7 @@ export default function Profile() {
   })
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const { translate, t } = useLanguage()
 
   const set = (k) => (e) => { setForm((f) => ({ ...f, [k]: e.target.value })); setSaved(false) }
 
@@ -37,7 +39,7 @@ export default function Profile() {
   }
 
   return (
-    <Shell title="My profile" subtitle={profile.role === 'trainer' ? 'What you teach and where you come from.' : 'Your qualifications, skills and background.'}>
+    <Shell title={t.profile} subtitle={profile.role === 'trainer' ? translate('What you teach and where you come from.') : translate('Your qualifications, skills and background.')}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="flex flex-col items-center gap-3 text-center lg:col-span-1">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-teal-500 text-2xl font-bold text-white">

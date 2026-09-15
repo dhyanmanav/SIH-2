@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../context/AuthContext'
+import { useLanguage } from '../../context/LanguageContext'
 import Shell from '../../components/Shell'
 import { Badge, Button, Card, Input } from '../../components/ui'
 
@@ -13,10 +14,11 @@ const SUGGESTIONS = [
 
 export default function ImdMentor() {
   const { profile } = useAuth()
+  const { language, t } = useLanguage()
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: `Hello ${profile?.full_name?.split(' ')[0] ?? 'there'}! I am your IMD AI Mentor. Ask me about meteorology, observations, forecasting workflows, climate science, data quality, or your Capacity Connect courses.`,
+      content: t.firstMessage(profile?.full_name?.split(' ')[0] ?? 'there'),
     },
   ])
   const [question, setQuestion] = useState('')
@@ -49,6 +51,7 @@ export default function ImdMentor() {
     const { data, error: functionError } = await supabase.functions.invoke('imd-chat', {
       body: {
         messages: nextMessages.slice(-12),
+        language,
         courses: courses.map((item) => ({
           title: item.courses?.title,
           category: item.courses?.category,
@@ -63,19 +66,19 @@ export default function ImdMentor() {
       setError('The mentor is not available. Deploy the imd-chat Supabase Edge Function and configure GROQ_API_KEY.')
       return
     }
-    setMessages((current) => [...current, { role: 'assistant', content: data?.reply ?? 'I could not generate a response.' }])
+    setMessages((current) => [...current, { role: 'assistant', content: data?.reply ?? t.noResponse }])
   }
 
   return (
-    <Shell title="IMD AI mentor" subtitle="A project-oriented study companion for meteorology, observations, forecasting, and climate science.">
+    <Shell title={t.mentorTitle} subtitle={t.mentorSubtitle}>
       <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
         <Card className="flex min-h-[620px] flex-col">
           <div className="mb-4 flex items-center justify-between border-b border-cloud-200 pb-4">
             <div>
-              <p className="font-semibold text-navy-900">Ask the mentor</p>
-              <p className="text-xs text-storm-500">Grounded in IMD workflows; verify operational decisions with authorised forecasters.</p>
+              <p className="font-semibold text-navy-900">{t.askMentor}</p>
+              <p className="text-xs text-storm-500">{t.mentorHint}</p>
             </div>
-            <Badge tone="teal">IMD focus</Badge>
+            <Badge tone="teal">{t.focus}</Badge>
           </div>
 
           <div className="flex-1 space-y-4 overflow-y-auto pr-1">
@@ -88,7 +91,7 @@ export default function ImdMentor() {
                 </div>
               </div>
             ))}
-            {sending && <div className="text-sm text-storm-500">The mentor is thinking…</div>}
+            {sending && <div className="text-sm text-storm-500">{t.mentorThinking}</div>}
             <div ref={endRef} />
           </div>
 
@@ -98,16 +101,16 @@ export default function ImdMentor() {
               aria-label="Ask the IMD AI mentor"
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
-              placeholder="Ask a meteorology or course question…"
+              placeholder={t.mentorPlaceholder}
               className="min-w-0 flex-1"
             />
-            <Button type="submit" variant="accent" disabled={sending || !question.trim()}>Send</Button>
+            <Button type="submit" variant="accent" disabled={sending || !question.trim()}>{t.send}</Button>
           </form>
         </Card>
 
         <div className="space-y-6">
           <Card>
-            <h2 className="font-semibold text-navy-900">Try asking</h2>
+            <h2 className="font-semibold text-navy-900">{t.tryAsking}</h2>
             <div className="mt-3 flex flex-col gap-2">
               {SUGGESTIONS.map((suggestion) => (
                 <button
@@ -122,10 +125,10 @@ export default function ImdMentor() {
             </div>
           </Card>
           <Card>
-            <h2 className="font-semibold text-navy-900">Your learning context</h2>
+            <h2 className="font-semibold text-navy-900">{t.learningContext}</h2>
             <p className="mt-1 text-xs text-storm-500">The mentor uses these enrolled courses to tailor explanations.</p>
             <div className="mt-3 space-y-2">
-              {courses.length === 0 ? <p className="text-sm text-storm-500">No enrolled courses yet.</p> : courses.map((item) => (
+              {courses.length === 0 ? <p className="text-sm text-storm-500">{t.noCourses}</p> : courses.map((item) => (
                 <div key={item.courses?.title} className="rounded-md bg-cloud-100 px-3 py-2 text-sm">
                   <p className="font-medium text-navy-900">{item.courses?.title}</p>
                   <p className="text-xs text-storm-500">{item.progress}% complete</p>
@@ -134,11 +137,8 @@ export default function ImdMentor() {
             </div>
           </Card>
           <Card className="border-l-4 border-l-amber-500">
-            <h2 className="font-semibold text-navy-900">Good use cases</h2>
-            <p className="mt-2 text-sm text-storm-500">
-              Use it to turn an IMD project idea into a research question, explain radar or satellite products,
-              review Python/data-analysis approaches, prepare a briefing, or practise an oral examination.
-            </p>
+            <h2 className="font-semibold text-navy-900">{t.goodUseCases}</h2>
+            <p className="mt-2 text-sm text-storm-500">{t.goodUseCasesText}</p>
           </Card>
         </div>
       </div>
