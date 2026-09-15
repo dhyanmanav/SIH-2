@@ -6,6 +6,7 @@ html, body, #root { height: 100%; }
 
 body {
   @apply font-body text-storm-700 bg-cloud-50;
+  background-image: radial-gradient(circle at 100% 0%, rgba(18, 143, 140, 0.06), transparent 28rem);
 }
 
 h1, h2, h3, h4 { @apply font-display text-navy-900; }
@@ -19,6 +20,23 @@ h1, h2, h3, h4 { @apply font-display text-navy-900; }
 .focus-ring:focus-visible {
   outline: 2px solid #128F8C;
   outline-offset: 2px;
+}
+
+button, a, input, select, textarea {
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+main {
+  animation: page-enter 320ms ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -6,6 +6,7 @@ import Shell from '../../components/Shell'
 import Loader from '../../components/Loader'
 import EmptyState from '../../components/EmptyState'
 import { Card, Badge, Button, ProgressBar, Textarea } from '../../components/ui'
+import ProctoringGate from '../../components/ProctoringGate'
 
 const TYPE_ICON = { video: '▶', pdf: '▤', slides: '▥', link: '⇢' }
 
@@ -204,16 +205,23 @@ export default function CourseDetail() {
               {quizzes.length === 0 ? (
                 <EmptyState title="No tests yet" hint="Tests will appear here once the trainer adds them." />
               ) : activeQuiz ? (
-                quizResult ? (
-                  <Card className="flex flex-col items-center gap-2 py-8 text-center">
-                    <p className={`font-display text-4xl font-bold ${quizResult.passed ? 'text-teal-600' : 'text-coral-600'}`}>{quizResult.percent}%</p>
-                    <p className="text-sm text-storm-500">{quizResult.correct} of {quizResult.total} correct</p>
-                    <Badge tone={quizResult.passed ? 'teal' : 'coral'}>{quizResult.passed ? 'Passed' : 'Not yet — try again later'}</Badge>
-                    <Button variant="outline" className="mt-3" onClick={() => { setActiveQuiz(null); setQuizResult(null) }}>Back to tests</Button>
-                  </Card>
-                ) : (
-                  <QuizRunner quiz={activeQuiz} questions={activeQuiz.quiz_questions} onFinished={handleQuizFinished} />
-                )
+                <ProctoringGate title={activeQuiz.title} onExit={() => { setActiveQuiz(null); setQuizResult(null) }}>
+                  {quizResult ? (
+                    <Card className="flex flex-col items-center gap-2 py-8 text-center">
+                      <p className={`font-display text-4xl font-bold ${quizResult.passed ? 'text-teal-600' : 'text-coral-600'}`}>{quizResult.percent}%</p>
+                      <p className="text-sm text-storm-500">{quizResult.correct} of {quizResult.total} correct</p>
+                      <Badge tone={quizResult.passed ? 'teal' : 'coral'}>{quizResult.passed ? 'Passed' : 'Not yet — try again later'}</Badge>
+                      <p className="max-w-md text-sm text-storm-500">
+                        {quizResult.passed
+                          ? 'Great work — your answers show a solid grasp of this module.'
+                          : 'Review the learning material, focus on the missed concepts, and try again when you are ready.'}
+                      </p>
+                      <Button variant="outline" className="mt-3" onClick={() => { setActiveQuiz(null); setQuizResult(null) }}>Back to tests</Button>
+                    </Card>
+                  ) : (
+                    <QuizRunner quiz={activeQuiz} questions={activeQuiz.quiz_questions} onFinished={handleQuizFinished} />
+                  )}
+                </ProctoringGate>
               ) : (
                 <div className="flex flex-col gap-2">
                   {quizzes.map((q) => (
@@ -225,7 +233,7 @@ export default function CourseDetail() {
                           {q.deadline ? ` · due ${new Date(q.deadline).toLocaleDateString()}` : ''}
                         </p>
                       </div>
-                      <Button variant="accent" disabled={!q.quiz_questions?.length} onClick={() => setActiveQuiz(q)}>Start</Button>
+                      <Button variant="accent" disabled={!q.quiz_questions?.length} onClick={() => setActiveQuiz(q)}>Start secure test</Button>
                     </Card>
                   ))}
                 </div>

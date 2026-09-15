@@ -5,6 +5,7 @@ import Shell from '../../components/Shell'
 import Loader from '../../components/Loader'
 import EmptyState from '../../components/EmptyState'
 import { Card, Badge, Button, Input, Select, ProgressBar } from '../../components/ui'
+import { matchCompetencyScore } from '../../lib/competencyMatcher'
 
 const EMPTY_QUESTION = { question: '', options: ['', '', '', ''], correct_index: 0, difficulty: 2 }
 
@@ -15,6 +16,7 @@ export default function ManageCourse() {
   const [materials, setMaterials] = useState([])
   const [quizzes, setQuizzes] = useState([])
   const [enrollments, setEnrollments] = useState([])
+  const [attempts, setAttempts] = useState([])
 
   const [materialForm, setMaterialForm] = useState({ title: '', type: 'video', url: '' })
   const [quizTitle, setQuizTitle] = useState('')
@@ -27,12 +29,17 @@ export default function ManageCourse() {
       supabase.from('courses').select('*').eq('id', id).single(),
       supabase.from('course_materials').select('*').eq('course_id', id).order('created_at'),
       supabase.from('quizzes').select('*, quiz_questions(*)').eq('course_id', id).order('created_at'),
-      supabase.from('enrollments').select('*, profiles(full_name)').eq('course_id', id).order('progress', { ascending: false }),
+      supabase.from('enrollments').select('*, profiles(full_name, skills)').eq('course_id', id).order('progress', { ascending: false }),
     ])
+    const quizIds = (q ?? []).map((quiz) => quiz.id)
+    const { data: a } = quizIds.length
+      ? await supabase.from('quiz_attempts').select('quiz_id, trainee_id, score, total, passed, attempted_at').in('quiz_id', quizIds).order('attempted_at', { ascending: false })
+      : { data: [] }
     setCourse(c)
     setMaterials(m ?? [])
     setQuizzes(q ?? [])
     setEnrollments(e ?? [])
+    setAttempts(a ?? [])
     setLoading(false)
   }
 
@@ -75,6 +82,15 @@ export default function ManageCourse() {
 
   if (loading) return <Shell><Loader /></Shell>
   if (!course) return <Shell><EmptyState title="Course not found" /></Shell>
+
+  const competencyRows = enrollments.map((enrollment) => {
+    const mapping = matchCompetencyScore(enrollment.profiles?.skills ?? [], course)
+    const traineeAttempts = attempts.filter((attempt) => attempt.trainee_id === enrollment.trainee_id)
+    const latest = traineeAttempts[0]
+    return { enrollment, mapping, latest, attempts: traineeAttempts }
+  })
+  const traineeNames = new Map(enrollments.map((enrollment) => [enrollment.trainee_id, enrollment.profiles?.full_name]))
+  const quizNames = new Map(quizzes.map((quiz) => [quiz.id, quiz.title]))
 
   return (
     <Shell title={course.title} subtitle="Add material, build quizzes, and track your trainees.">
@@ -166,24 +182,81 @@ export default function ManageCourse() {
 
         {/* trainees */}
         <div>
-          <h2 className="mb-3 text-lg font-semibold text-navy-900">Enrolled trainees</h2>
+          <h2 className="mb-3 text-lg font-semibold text-navy-900">Trainee competency map</h2>
+          <p className="mb-3 text-sm text-storm-500">Compare each trainee&apos;s declared skills with this course and review their latest test result.</p>
           {enrollments.length === 0 ? (
             <EmptyState title="No trainees yet" />
           ) : (
             <div className="flex flex-col gap-3">
-              {enrollments.map((e) => (
-                <Card key={e.id} className="flex flex-col gap-2">
+              {competencyRows.map(({ enrollment: e, mapping, latest, attempts: traineeAttempts }) => (
+                <Card key={e.id} className="flex flex-col gap-3 transition-transform hover:-translate-y-0.5">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-semibold text-navy-900">{e.profiles?.full_name}</p>
                     <Badge tone={e.status === 'completed' ? 'teal' : 'amber'}>{e.status.replace('_', ' ')}</Badge>
                   </div>
                   <ProgressBar value={e.progress} />
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded-md bg-cloud-100 p-2">
+                      <span className="block text-storm-500">Competency match</span>
+                      <strong className="text-teal-600">{mapping.score}%</strong>
+                    </div>
+                    <div className="rounded-md bg-cloud-100 p-2">
+                      <span className="block text-storm-500">Latest result</span>
+                      <strong className={latest?.passed ? 'text-teal-600' : 'text-navy-900'}>
+                        {latest ? `${Math.round((latest.score / Math.max(1, latest.total)) * 100)}%` : 'Not attempted'}
+                      </strong>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {mapping.matched.length
+                      ? mapping.matched.slice(0, 4).map((skill) => <Badge key={skill} tone="teal">{skill}</Badge>)
+                      : <span className="text-xs text-storm-500">No matching skills declared yet.</span>}
+                    {traineeAttempts.length > 1 && <span className="text-xs text-storm-500">{traineeAttempts.length} attempts</span>}
+                  </div>
                 </Card>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      <Card className="mt-6">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-semibold text-navy-900">Results sheet</h2>
+            <p className="mt-1 text-sm text-storm-500">A chronological record of every submitted test attempt for this course.</p>
+          </div>
+          <Badge tone="teal">{attempts.length} attempts</Badge>
+        </div>
+        {attempts.length === 0 ? (
+          <p className="rounded-md bg-cloud-100 px-3 py-4 text-sm text-storm-500">Results will appear here after trainees submit a test.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[620px] text-left text-sm">
+              <thead className="border-b border-cloud-200 text-xs uppercase tracking-wide text-storm-500">
+                <tr>
+                  <th className="px-3 py-2 font-semibold">Trainee</th>
+                  <th className="px-3 py-2 font-semibold">Test</th>
+                  <th className="px-3 py-2 font-semibold">Score</th>
+                  <th className="px-3 py-2 font-semibold">Status</th>
+                  <th className="px-3 py-2 font-semibold">Submitted</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attempts.map((attempt) => (
+                  <tr key={attempt.id} className="border-b border-cloud-100 last:border-0">
+                    <td className="px-3 py-3 font-medium text-navy-900">{traineeNames.get(attempt.trainee_id) ?? 'Trainee'}</td>
+                    <td className="px-3 py-3 text-storm-500">{quizNames.get(attempt.quiz_id) ?? 'Test'}</td>
+                    <td className="px-3 py-3 font-semibold text-navy-900">{attempt.score}/{attempt.total}</td>
+                    <td className="px-3 py-3"><Badge tone={attempt.passed ? 'teal' : 'coral'}>{attempt.passed ? 'Passed' : 'Needs review'}</Badge></td>
+                    <td className="px-3 py-3 text-storm-500">{new Date(attempt.attempted_at).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
     </Shell>
   )
 }
